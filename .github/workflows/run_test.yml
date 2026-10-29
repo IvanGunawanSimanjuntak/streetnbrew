@@ -26,10 +26,7 @@ jobs:
         pip install pytest requests playwright
         playwright install --with-deps
 
-    # Menjalankan Flask dengan mode testing / SQLite sementara agar tidak butuh PostgreSQL eksternal
-    - name: Start Flask Server
-      env:
-        DATABASE_URL: "sqlite:///test.db"
+    # Langsung jalankan pytest tanpa perlu repot menyalakan python app.py di background
+    - name: Run API Tests
       run: |
-        python app.py &
-        sleep 5
+        pytest test_api.py -v
