@@ -33,6 +33,16 @@ def test_dana_qr_endpoint(client):
 
 def test_invalid_quantity_handling(client):
     """Negative Testing: Mengirim quantity non-numerik harus ditolak."""
+    from app import db, Menu  # Pastikan mengimpor db dan model menu aplikasimu
+    
+    # Masukkan produk dummy ber-ID 1 terlebih dahulu ke database pengujian
+    with client.application.app_context():
+        if not db.session.get(Menu, 1):
+            dummy_product = Menu(id=1, name="Kopi Dummy", price=15000)
+            db.session.add(dummy_product)
+            db.session.commit()
+
+    # Kirim request POST dengan quantity non-numerik
     response = client.post(
         "/add_to_cart/1",
         data={"quantity": "bukan-angka"},
