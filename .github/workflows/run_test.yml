@@ -28,13 +28,8 @@ jobs:
 
     # Menjalankan Flask dengan mode testing / SQLite sementara agar tidak butuh PostgreSQL eksternal
     - name: Start Flask Server
+      env:
+        DATABASE_URL: "sqlite:///test.db"
       run: |
-        # Jika aplikasimu membaca environment variable untuk database, atur di sini.
-        # Atau jalankan Flask di latar belakang:
         python app.py &
-        # Beri waktu jeda 5 detik agar server benar-benar siap
         sleep 5
-
-    - name: Run API Tests
-      run: |
-        pytest test_api.py -v

@@ -29,8 +29,14 @@ app.config.update(
     SESSION_COOKIE_SECURE=os.environ.get('SESSION_COOKIE_SECURE', '').lower() == 'true',
 )
 
-# Konfigurasi Koneksi PostgreSQL dengan psycopg2
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://postgres:admin123@localhost:5432/coffe_shop_db'
+import os
+
+# Menggunakan environment variable DATABASE_URL jika ada (untuk GitHub Actions), 
+# jika tidak ada, gunakan PostgreSQL lokal.
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', 
+    'postgresql+psycopg2://postgres:admin123@localhost:5432/coffe_shop_db'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
