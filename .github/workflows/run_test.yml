@@ -28,5 +28,7 @@ jobs:
         playwright install --with-deps
 
     - name: Run API Tests
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
       run: |
-        pytest test_api.py -v 
+        pytest test_api.py -v

@@ -33,6 +33,9 @@ import os
 
 # Menggunakan environment variable DATABASE_URL jika ada (untuk GitHub Actions), 
 # jika tidak ada, gunakan PostgreSQL lokal.
+import os
+
+# Menggunakan DATABASE_URL dari environment jika ada, jika tidak gunakan PostgreSQL lokal
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL', 
     'postgresql+psycopg2://postgres:admin123@localhost:5432/coffe_shop_db'
