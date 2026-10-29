@@ -1,0 +1,42 @@
+name: Street N Brew Automated Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Mengambil kode terbaru dari repository GitHub kamu
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 2. Menyiapkan lingkungan Python di server cloud GitHub
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    # 3. Menginstal library yang dibutuhkan (pytest, requests, playwright, dll)
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest requests playwright
+        playwright install --with-deps
+
+    # 4. Menyalakan server Flask aplikasi Street N Brew di latar belakang (background)
+    - name: Start Flask Server
+      run: |
+        python app.py &
+        # Memberikan waktu jeda beberapa detik agar server siap menerima request
+        sleep 3
+
+    # 5. Menjalankan skrip API Testing menggunakan pytest
+    - name: Run API Tests
+      run: |
+        pytest test_api.py -v

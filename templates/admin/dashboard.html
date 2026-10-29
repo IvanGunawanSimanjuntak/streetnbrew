@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Penjualan - Daun & Kopi{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    
+    <!-- Header Halaman -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Dashboard Rangkuman Penjualan</h1>
+            <p class="text-xs text-slate-500">Analisis cepat performa kedai kopi Anda hari ini.</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/kasir/pos" class="btn btn-sm bg-emerald-700 text-white hover:bg-emerald-800 border-none">💻 Buka Kasir (POS)</a>
+            <a href="/kasir/reports" class="btn btn-sm bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50">📑 Laporan & Stok</a>
+        </div>
+    </div>
+
+    <!-- Kotak Statistik Utama (Stat Cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        
+        <!-- Kartu 1 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-slate-400">Total Pendapatan Hari Ini</span>
+                <span class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm">💰</span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">Rp 1.450.000</h3>
+            <span class="text-[10px] text-emerald-600 font-semibold mt-1 block">↑ 12% dari kemarin</span>
+        </div>
+
+        <!-- Kartu 2 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-slate-400">Total Pesanan Sukses</span>
+                <span class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm">🛍️</span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">48 Transaksi</h3>
+            <span class="text-[10px] text-emerald-600 font-semibold mt-1 block">Termasuk Self-Order (32)</span>
+        </div>
+
+        <!-- Kartu 3 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-slate-400">Menu Terlaris</span>
+                <span class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm">☕</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800 truncate">Kopi Susu Gula Aren</h3>
+            <span class="text-[10px] text-slate-400 mt-1 block">Terjual 24 porsi</span>
+        </div>
+
+        <!-- Kartu 4 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-slate-400">Metode Favorit</span>
+                <span class="p-2 bg-emerald-50 text-emerald-700 rounded-xl text-sm">📱</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">QRIS (65%)</h3>
+            <span class="text-[10px] text-slate-400 mt-1 block">Tunai (35%)</span>
+        </div>
+
+    </div>
+
+    <!-- Bagian Grafik & Riwayat Cepat -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Kolom Grafik Pendapatan (Simulasi Visual) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <h3 class="font-bold text-slate-800 text-sm mb-4">Grafik Penjualan Mingguan</h3>
+            <div class="h-64 bg-slate-50 rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs">
+                [Area Grafik Chart.js / Penjualan Harian]
+            </div>
+        </div>
+
+        <!-- Kolom Aktivitas Pesanan Terbaru -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+            <div>
+                <h3 class="font-bold text-slate-800 text-sm mb-4">Pesanan Masuk Terbaru</h3>
+                <div class="space-y-3">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-xs text-slate-700">Meja #04 - Budi</p>
+                            <span class="text-[10px] text-slate-400">2x Kopi Susu</span>
+                        </div>
+                        <span class="badge badge-sm bg-emerald-100 text-emerald-800 border-none font-semibold">Selesai</span>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-xs text-slate-700">Meja #01 - Siska</p>
+                            <span class="text-[10px] text-slate-400">1x Matcha Latte</span>
+                        </div>
+                        <span class="badge badge-sm bg-amber-100 text-amber-800 border-none font-semibold">Pending</span>
+                    </div>
+                </div>
+            </div>
+            <a href="/kasir/pos" class="btn btn-sm btn-outline border-emerald-600 text-emerald-700 hover:bg-emerald-50 w-full mt-4">Kelola Semua Pesanan</a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Kasir POS - Daun & Kopi{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    
+    <!-- Header Halaman Kasir -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Kasir Point of Sales (POS)</h1>
+            <p class="text-xs text-slate-500">Kelola pesanan langsung, pantau transaksi, dan cetak struk belanja.</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/kasir/dashboard" class="btn btn-sm bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50">📊 Dashboard</a>
+            <a href="/kasir/reports" class="btn btn-sm bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50">📑 Laporan & Stok</a>
+        </div>
+    </div>
+
+    <!-- Layout 2 Kolom Utama -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- KOLOM KIRI: Katalog Produk untuk Kasir (2 Kolom di dalam grid) -->
+        <div class="lg:col-span-2 space-y-4">
+            
+            <!-- Bar Pencarian & Filter -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex gap-3">
+                <input type="text" placeholder="Cari nama menu..." class="input input-bordered input-sm w-full bg-slate-50 border-slate-200 focus:border-emerald-600" />
+                <select class="select select-bordered select-sm bg-slate-50 border-slate-200">
+                    <option disabled selected>Semua Kategori</option>
+                    <option>Kopi Susu</option>
+                    <option>Non-Kopi</option>
+                    <option>Snack</option>
+                </select>
+            </div>
+
+            <!-- Grid Pilihan Produk Kasir -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                
+                <!-- Contoh Item Produk -->
+                <div onclick="addToCart('Kopi Susu Gula Aren', 22000)" class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:border-emerald-500 cursor-pointer transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-28 rounded-xl bg-emerald-50 mb-2 overflow-hidden flex items-center justify-center text-emerald-700 font-bold text-lg">
+                            ☕
+                        </div>
+                        <h4 class="font-bold text-xs text-slate-800 leading-snug">Kopi Susu Gula Aren</h4>
+                        <span class="text-[10px] text-slate-400">Hot</span>
+                    </div>
+                    <div class="mt-3 flex justify-between items-center">
+                        <span class="text-xs font-bold text-emerald-700">Rp 22.000</span>
+                        <span class="btn btn-xs bg-emerald-50 text-emerald-700 border-none hover:bg-emerald-100">+ Add</span>
+                    </div>
+                </div>
+
+                <div onclick="addToCart('Signature Matcha', 25000)" class="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm hover:border-emerald-500 cursor-pointer transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="h-28 rounded-xl bg-emerald-50 mb-2 overflow-hidden flex items-center justify-center text-emerald-700 font-bold text-lg">
+                            🍵
+                        </div>
+                        <h4 class="font-bold text-xs text-slate-800 leading-snug">Signature Matcha</h4>
+                        <span class="text-[10px] text-slate-400">Ice / Less Sugar</span>
+                    </div>
+                    <div class="mt-3 flex justify-between items-center">
+                        <span class="text-xs font-bold text-emerald-700">Rp 25.000</span>
+                        <span class="btn btn-xs bg-emerald-50 text-emerald-700 border-none hover:bg-emerald-100">+ Add</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- KOLOM KANAN: Keranjang, Total, & Pembayaran -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between h-fit sticky top-20">
+            <div>
+                <h3 class="font-bold text-base text-slate-800 border-b border-slate-100 pb-3 mb-4 flex justify-between items-center">
+                    <span>🛒 Keranjang Pesanan</span>
+                    <span class="badge badge-sm bg-emerald-100 text-emerald-800 border-none font-semibold">Pesanan Kasir</span>
+                </h3>
+
+                <!-- Input Info Pelanggan -->
+                <div class="space-y-3 mb-4">
+                    <div>
+                        <label class="text-[11px] font-medium text-slate-500 block mb-1">Nama Pelanggan</label>
+                        <input type="text" id="customer_name" placeholder="Misal: Budi" class="input input-bordered input-sm w-full bg-slate-50 border-slate-200" />
+                    </div>
+                </div>
+
+                <!-- Daftar Item di Keranjang (Simulasi Tabel Kecil) -->
+                <div class="space-y-2 max-h-48 overflow-y-auto mb-4 pr-1" id="cart-items-container">
+                    <div class="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                        <div>
+                            <p class="font-bold text-slate-700">Kopi Susu Gula Aren</p>
+                            <span class="text-[10px] text-slate-400">1x @Rp 22.000</span>
+                        </div>
+                        <span class="font-bold text-emerald-700">Rp 22.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Total & Pembayaran -->
+            <div class="border-t border-slate-100 pt-4 mt-2">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-medium text-slate-500">Total Pembayaran</span>
+                    <span class="text-lg font-bold text-emerald-800" id="grand-total">Rp 22.000</span>
+                </div>
+
+                <!-- Pilihan Metode Pembayaran -->
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button class="btn btn-xs bg-emerald-700 text-white border-none py-2 h-auto font-medium">Tunai</button>
+                    <button class="btn btn-xs bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50 py-2 h-auto font-medium">QRIS</button>
+                    <button class="btn btn-xs bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50 py-2 h-auto font-medium">Transfer</button>
+                </div>
+
+                <!-- Tombol Proses & Cetak Struk -->
+                <button onclick="processPayment()" class="btn w-full bg-emerald-700 hover:bg-emerald-800 text-white border-none font-semibold shadow-sm">
+                    Bayar & Cetak Struk 🖨️
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function addToCart(productName, price) {
+        alert("Menambahkan " + productName + " ke keranjang kasir.");
+    }
+
+    function processPayment() {
+        alert("Transaksi berhasil! Memproses cetak struk (Fitur window.print() akan dijalankan).");
+    }
+</script>
+{% endblock %}

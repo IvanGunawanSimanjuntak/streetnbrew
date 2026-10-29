@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struk {{ order.id }} - Street N Brew</title>
+    <style>
+        /* Styling khusus untuk ukuran kertas printer thermal (58mm/80mm) */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 300px; /* Sesuaikan dengan lebar printer */
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 12px;
+            color: #000;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .fw-bold { font-weight: bold; }
+        .divider { border-bottom: 1px dashed #000; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 4px 0; vertical-align: top; }
+        
+        /* Hilangkan elemen yang tidak perlu saat dicetak */
+        @media print {
+            body { width: 100%; margin: 0; padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="text-center fw-bold" style="font-size: 16px;">☕ Street N Brew</div>
+    <div class="text-center">Jl. Gunung Sinabung No.7</div>
+    <div class="text-center">Telp: 0812-6209-9033</div>
+    
+    <div class="divider"></div>
+    
+    <table>
+        <tr>
+            <td>No. Order</td>
+            <td class="text-right">{{ order.id }}</td>
+        </tr>
+        <tr>
+            <td>Waktu</td>
+            <td class="text-right">{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        </tr>
+        <tr>
+            <td>Pelanggan</td>
+            <td class="text-right">{{ order.customer_name }}</td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+
+    <table>
+        {% for item in order.items %}
+        <tr>
+            <td>{{ item.product_name }} ({{ item.variant_name }})</td>
+            <td class="text-right">Rp {{ "{:,.0f}".format(item.price).replace(",", ".") }}</td>
+        </tr>
+        <tr>
+            <td>x{{ item.quantity }}</td>
+            <td class="text-right">Rp {{ "{:,.0f}".format(item.price * item.quantity).replace(",", ".") }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="divider"></div>
+
+    <table>
+        <tr>
+            <td class="fw-bold">Metode Bayar</td>
+            <td class="text-right fw-bold">{{ order.payment_method }}</td>
+        </tr>
+        <tr>
+            <td class="fw-bold" style="font-size: 14px;">TOTAL</td>
+            <td class="text-right fw-bold" style="font-size: 14px;">Rp {{ "{:,.0f}".format(order.total_price).replace(",", ".") }}</td>
+        </tr>
+    </table>
+
+    <div class="divider"></div>
+    
+    <div class="text-center">
+        <p>Terima kasih atas kunjungan Anda!</p>
+        <p><i>Kritik & Saran: @streetnbrew</i></p>
+    </div>
+
+    <!-- Tombol untuk tes cetak manual jika dialog print ditutup -->
+    <div class="text-center no-print" style="margin-top: 20px;">
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Cetak Ulang</button>
+        <button onclick="window.close()" style="padding: 10px 20px; cursor: pointer;">Tutup</button>
+    </div>
+
+    <!-- Script otomatis buka dialog print saat halaman dimuat -->
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+
+</body>
+</html>

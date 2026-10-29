@@ -1,0 +1,6 @@
+Flask==3.0.2
+Flask-SQLAlchemy==3.1.1
+Werkzeug==3.0.1
+psycopg2-binary
+reportlab==4.4.4
+qrcode==8.2

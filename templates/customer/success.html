@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesanan Berhasil - Street N Brew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <div class="container my-4" style="max-width: 540px;">
+        <div class="card border-0 shadow-sm p-3 p-sm-4 text-center rounded-4">
+            <div class="mb-2 mt-1">
+                {% if order.status == 'Selesai' %}
+                <i class="fas fa-check-circle text-success fa-3x"></i>
+                {% else %}
+                <i class="fas fa-clock text-warning fa-3x"></i>
+                {% endif %}
+            </div>
+            {% if order.status == 'Selesai' %}
+            <h4 class="fw-bold mb-1">Pembayaran Berhasil</h4>
+            <p class="text-muted small">Pembayaran pesanan <strong>{{ order.customer_name }}</strong> sudah dikonfirmasi oleh kasir.</p>
+            {% elif order.payment_method in ['Transfer DANA', 'QRIS'] %}
+            <h4 class="fw-bold mb-1">Tagihan Pesanan Dibuat</h4>
+            <p class="text-muted small">Pesanan <strong>{{ order.customer_name }}</strong> tercatat dan menunggu konfirmasi pembayaran.</p>
+            {% else %}
+            <h4 class="fw-bold mb-1">Pesanan Berhasil Dibuat!</h4>
+            <p class="text-muted small">Terima kasih <strong>{{ order.customer_name }}</strong>, pesanan Anda sedang dipersiapkan oleh barista.</p>
+            {% endif %}
+            
+            <hr class="my-3">
+
+            <div class="text-start bg-light p-3 rounded-3 mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Metode Pembayaran:</span>
+                    <span class="fw-bold">{{ order.payment_method }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-muted small">Total Tagihan:</span>
+                    <span class="fw-bold text-success fs-5">Rp {{ "{:,.0f}".format(order.total_price).replace(",", ".") }}</span>
+                </div>
+                
+                {% if order.payment_method == 'Transfer DANA' %}
+                <div class="alert alert-success text-start my-3 mb-0">
+                    <h5 class="alert-heading fw-bold"><i class="fas fa-wallet me-2" aria-hidden="true"></i>Transfer DANA</h5>
+                    <p class="small mb-2">Transfer melalui aplikasi DANA ke nomor merchant berikut:</p>
+                    <div class="text-center my-3">
+                        <img src="{{ url_for('dana_number_qr') }}" alt="Kode QR nomor DANA merchant" width="220" height="220" class="img-fluid border rounded bg-white p-2">
+                    </div>
+                    <p class="small mb-2">Masukkan nominal tepat seperti total tagihan di atas, lalu tunjukkan bukti transfer kepada kasir untuk diverifikasi.</p>
+                    <p class="small text-muted border-top pt-2 mt-3 mb-0">Pembayaran akan dikonfirmasi kasir secara manual. Halaman ini tidak membuat QR dan tidak memverifikasi transfer otomatis.</p>
+                </div>
+                {% elif order.payment_method == 'QRIS' %}
+                <div class="alert alert-warning text-start my-3 mb-0">
+                    <h5 class="alert-heading fw-bold"><i class="fas fa-circle-exclamation me-2" aria-hidden="true"></i>Perlu konfirmasi kasir</h5>
+                    <p class="small mb-0">QRIS belum terhubung ke aplikasi. Silakan minta instruksi pembayaran kepada kasir dan tunggu konfirmasi manual.</p>
+                </div>
+                {% elif order.payment_method == 'Transfer BCA' %}
+                <div class="alert alert-info mt-3 mb-0 small">
+                    Silakan transfer ke nomor rekening berikut:<br>
+                    <strong class="fs-6">BCA 1234-5678-90</strong><br>
+                    <span>Atas Nama: PT Street N Brew Indonesia</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                {% if session.get('staff_authenticated') and order.status != 'Selesai' %}
+                <form action="{{ url_for('complete_order_payment', order_id=order.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-success px-4 py-2 rounded-3 shadow-sm w-100">
+                        <i class="fas fa-check-circle me-1" aria-hidden="true"></i>Selesai
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{{ url_for('index') }}" class="btn btn-outline-success px-4 py-2 rounded-3 shadow-sm">
+                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Kembali
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

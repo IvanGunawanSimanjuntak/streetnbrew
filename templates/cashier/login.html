@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Login Kasir - Street N Brew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --green-ink: #173f32;
+            --green-deep: #12372c;
+            --green-soft: #e9f2ec;
+            --cream: #f4efdf;
+        }
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            display: grid;
+            place-items: center;
+            overflow-x: hidden;
+            background: #101713;
+        }
+        .login-stage {
+            position: relative;
+            isolation: isolate;
+            display: grid;
+            min-height: calc(100vh - 48px);
+            width: 100%;
+            place-items: center;
+            overflow: hidden;
+            padding: 2rem 1.25rem;
+            border-radius: 20px;
+            background: var(--green-ink);
+        }
+        .login-stage::before,
+        .login-stage::after {
+            position: absolute;
+            z-index: -1;
+            content: "";
+            pointer-events: none;
+        }
+        .login-stage::before {
+            top: 7%;
+            left: 5%;
+            width: clamp(150px, 19vw, 245px);
+            aspect-ratio: 1;
+            border: 2px solid rgba(244, 239, 223, .12);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 24px rgba(244, 239, 223, .045),
+                0 0 0 48px rgba(244, 239, 223, .035);
+        }
+        .login-stage::after {
+            right: 7%;
+            top: 12%;
+            width: clamp(120px, 15vw, 195px);
+            aspect-ratio: 1;
+            border: 2px solid rgba(244, 239, 223, .1);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 22px rgba(244, 239, 223, .04),
+                0 0 0 44px rgba(244, 239, 223, .03);
+        }
+        .coffee-illustration {
+            position: absolute;
+            right: 5%;
+            bottom: 5%;
+            width: clamp(170px, 23vw, 310px);
+            height: auto;
+            color: var(--cream);
+            opacity: .55;
+            pointer-events: none;
+        }
+        .login-shell {
+            width: min(100%, 560px);
+            z-index: 1;
+        }
+        .login-panel {
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .55);
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 24px 70px rgba(4, 20, 13, .24);
+        }
+        .login-brand {
+            padding: clamp(1.5rem, 5vw, 2.25rem) clamp(1.5rem, 6vw, 2.25rem) 0;
+            color: var(--green-ink);
+        }
+        .brand-mark {
+            display: grid;
+            width: 72px;
+            height: 72px;
+            place-items: center;
+            border-radius: 18px;
+            color: var(--cream);
+            background: var(--green-ink);
+            font-size: 1.8rem;
+        }
+        .brand-tagline {
+            color: #405b4b;
+            letter-spacing: .02em;
+            font-weight: 500;
+        }
+        .login-body {
+            padding: 1.5rem clamp(1.5rem, 6vw, 2.25rem) clamp(1.5rem, 6vw, 2.25rem);
+            color: #46584e;
+        }
+        .login-intro {
+            color: #354b3d;
+            font-weight: 500;
+        }
+        .form-label { color: #33483d; }
+        .form-control {
+            min-height: 48px;
+            border: 1px solid #aebbb1;
+            background-color: #f7f6f2;
+            color: #243a2f;
+        }
+        .form-control:focus {
+            border-color: #28734f;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 .22rem rgba(40, 115, 79, .2);
+        }
+        .btn-staff {
+            color: #fff;
+            background: var(--green-ink);
+            border-color: var(--green-ink);
+        }
+        .btn-staff:hover, .btn-staff:focus-visible {
+            color: #fff;
+            background: var(--green-deep);
+            border-color: var(--green-deep);
+        }
+        @media (max-width: 575.98px) {
+            body { padding: 0; }
+            .login-stage {
+                min-height: 100vh;
+                border-radius: 0;
+                padding: 1.25rem;
+            }
+            .login-stage::before { top: 3%; left: 4%; }
+            .login-stage::after { top: auto; right: 6%; bottom: 4%; }
+            .coffee-illustration {
+                right: 2%;
+                bottom: 2%;
+                width: 150px;
+                opacity: .22;
+            }
+            .login-shell { width: min(100%, 480px); }
+        }
+    </style>
+</head>
+<body>
+    <main class="login-stage">
+        <svg class="coffee-illustration" viewBox="0 0 320 300" fill="none" aria-hidden="true">
+            <path d="M105 69c-18-23 17-29 0-52m55 52c-18-23 17-29 0-52m55 52c-18-23 17-29 0-52" stroke="currentColor" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+            <path d="M58 99h177l-16 127c-2 18-17 31-35 31h-75c-18 0-33-13-35-31L58 99Z" fill="currentColor" fill-opacity=".12" stroke="currentColor" stroke-width="7" stroke-linejoin="round"/>
+            <path d="M235 124h18c27 0 43 17 43 39s-16 39-43 39h-25" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+            <path d="M44 266h224" stroke="currentColor" stroke-width="7" stroke-linecap="round" opacity=".75"/>
+            <path d="M102 134c20-20 58-20 78 0-20 20-58 20-78 0Z" stroke="currentColor" stroke-width="5"/>
+            <path d="M141 115v38m-15-28 15 14 15-14m-15 28-15-14m15 14 15-14" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="login-shell">
+            <section class="login-panel">
+                <header class="login-brand">
+                    <span class="brand-mark mb-4" aria-hidden="true"><i class="fas fa-mug-hot"></i></span>
+                    <h1 class="h3 fw-bold mb-1">Street N Brew</h1>
+                    <p class="brand-tagline mb-0">Kopi untuk setiap pagi</p>
+                </header>
+
+                <div class="login-body">
+                    <p class="login-intro mb-4">Masuk untuk admin dan kasir.</p>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} py-2 small" role="alert">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('staff_login', next=request.args.get('next', '')) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label small fw-semibold">Username</label>
+                            <input id="username" name="username" type="text" class="form-control" autocomplete="username" required autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="form-label small fw-semibold">Password</label>
+                            <input id="password" name="password" type="password" class="form-control" autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="btn btn-staff w-100 py-2 fw-semibold">
+                            <i class="fas fa-lock me-2" aria-hidden="true"></i>Masuk
+                        </button>
+                    </form>
+                </div>
+            </section>
+            <p class="text-center small mt-3 mb-0" style="color: rgba(255, 255, 255, .82);">Halaman ini khusus untuk staf Street N Brew.</p>
+        </div>
+    </main>
+</body>
+</html>

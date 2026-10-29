@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Street N Brew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">☕ Street N Brew</a>
+        </div>
+    </nav>
+
+    <div class="container my-5" style="max-width: 600px;">
+        <h2 class="fw-bold mb-4">Informasi Pemesan</h2>
+
+        <div class="card border-0 shadow-sm p-4">
+            <form action="{{ url_for('checkout') }}" method="POST">
+                <div class="mb-3">
+                    <label for="customer_name" class="form-label fw-bold">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="customer_name" name="customer_name" required placeholder="Contoh: Budi Santoso">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Metode Pembayaran</label>
+                    <div class="form-check mb-2 p-3 border rounded">
+                        <input class="form-check-input" type="radio" name="payment_method" id="pay_dana" value="Transfer DANA" checked>
+                        <label class="form-check-label fw-bold ms-2" for="pay_dana">
+                            <i class="fas fa-wallet text-success"></i> Transfer DANA ke nomor merchant
+                        </label>
+                    </div>
+                    <div class="form-check mb-2 p-3 border rounded">
+                        <input class="form-check-input" type="radio" name="payment_method" id="pay_bca" value="Transfer BCA">
+                        <label class="form-check-label fw-bold ms-2" for="pay_bca">
+                            <i class="fas fa-university text-primary"></i> Transfer Bank BCA (1234-5678-90 a.n. Street N Brew)
+                        </label>
+                    </div>
+                    <div class="form-check p-3 border rounded">
+                        <input class="form-check-input" type="radio" name="payment_method" id="pay_cash" value="Tunai ke Kasir">
+                        <label class="form-check-label fw-bold ms-2" for="pay_cash">
+                            <i class="fas fa-money-bill-wave text-warning"></i> Bayar Tunai Langsung ke Kasir
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-secondary small">
+                    Total yang harus dibayar: <strong class="text-success fs-5 float-end">Rp {{ "{:,.0f}".format(subtotal).replace(",", ".") }}</strong>
+                    <div class="clearfix"></div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-lg w-100 mt-3">Buat Pesanan Sekarang</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street N Brew - POS E-Menu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f7f6; }
+        .navbar-custom {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .menu-card {
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+        .menu-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15);
+            border-color: #198754;
+        }
+        .menu-image {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            object-position: center;
+            background-color: #eef5f0;
+        }
+        .menu-card .card-body { padding: 1rem; }
+        .menu-card .card-title { font-size: 1.05rem; line-height: 1.3; }
+        .menu-card .card-text { font-size: 0.95rem; line-height: 1.45; }
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+        .payment-options .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            border-color: #d1d5db;
+            color: #475569;
+            font-weight: 600;
+        }
+        .payment-options .btn-check:checked + .btn {
+            background-color: #198754;
+            border-color: #198754;
+            color: #ffffff;
+        }
+        .payment-options .btn-check:checked + .btn::after {
+            content: "\f00c";
+            margin-left: 0.5rem;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+        .modal-backdrop.show { opacity: .7; }
+        .empty-order {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .empty-order i { color: #198754; }
+        .cart-sidebar {
+            background-color: #ffffff;
+            border-left: 1px solid #dee2e6;
+            position: sticky;
+            top: 70px;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            max-height: calc(100vh - 86px);
+            min-height: 0;
+            padding: 1.25rem !important;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.5rem rgba(25, 70, 45, 0.08);
+        }
+        .order-items {
+            flex: 0 1 auto;
+            min-height: 0;
+            max-height: 42vh;
+            overflow-y: auto;
+        }
+        .order-item-image {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            background-color: #eef5f0;
+        }
+        .order-item-fallback {
+            display: grid;
+            place-items: center;
+        }
+        .quantity-stepper {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .quantity-stepper form { margin: 0; }
+        .quantity-stepper .stepper-button {
+            display: inline-grid;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            padding: 0;
+            font-size: 1rem;
+            line-height: 1;
+        }
+        .quantity-stepper .quantity-value {
+            min-width: 32px;
+            text-align: center;
+        }
+        .order-checkout {
+            flex: 0 0 auto;
+            padding-top: 1rem;
+        }
+        .order-total {
+            border-top: 2px solid #dee2e6;
+            padding-top: 0.75rem;
+        }
+        .quantity-stepper .stepper-button {
+            width: 44px;
+            height: 44px;
+        }
+        .order-checkout .btn-checkout {
+            font-size: 1rem;
+            padding: 0.65rem 1rem !important;
+        }
+        #menuColumn, #currentOrderColumn {
+            transition: flex-basis 0.35s ease, max-width 0.35s ease, opacity 0.25s ease, transform 0.35s ease;
+        }
+        #currentOrderColumn { overflow: hidden; }
+        #posLayout.order-collapsed #menuColumn {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        #posLayout.order-collapsed #currentOrderColumn {
+            flex: 0 0 0;
+            max-width: 0;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            opacity: 0;
+            transform: translateX(24px);
+            pointer-events: none;
+        }
+        @media (max-width: 991.98px) {
+            #menuColumn, #currentOrderColumn { flex-basis: 100%; max-width: 100%; }
+            #posLayout.order-collapsed #menuColumn { flex-basis: 100%; max-width: 100%; }
+            #posLayout.order-collapsed #currentOrderColumn { flex-basis: 0; max-width: 0; }
+            .cart-sidebar {
+                position: static;
+                height: auto;
+                min-height: 0;
+                padding: 1rem !important;
+            }
+            .cart-sidebar { max-height: none; }
+            .order-items { max-height: 40vh; }
+        }
+        @media (max-width: 575.98px) {
+            #menuColumn { padding: 1rem !important; }
+            .menu-image { aspect-ratio: 4 / 3; }
+            .menu-card .card-body { padding: 0.875rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #menuColumn, #currentOrderColumn { transition: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-custom shadow-sm sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold fs-5 text-dark mb-0" href="{{ url_for('index') }}">
+                <i class="fas fa-coffee me-2 text-success"></i> Street N Brew
+            </a>
+            <div class="d-flex align-items-center gap-3">
+                <button id="orderToggle" type="button" class="btn btn-outline-secondary btn-sm fw-semibold" aria-controls="currentOrderColumn" aria-expanded="true">
+                    <i class="fas fa-basket-shopping me-1" aria-hidden="true"></i>
+                    Current Order
+                    {% if cart %}<span class="badge text-bg-success ms-1">{{ cart.values() | sum(attribute='quantity') }}</span>{% endif %}
+                </button>
+                <a href="{{ url_for('kasir_pos') }}" class="btn btn-outline-secondary btn-sm fw-semibold" target="cashier-dashboard">
+                    <i class="fas fa-cash-register me-1"></i> Dashboard Kasir
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row" id="posLayout">
+            
+            <!-- Kolom Kiri: Daftar Menu -->
+            <div class="col-lg-8 p-4" id="menuColumn">
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Grid Produk -->
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 g-xl-4">
+                    {% for product in products %}
+                    <div class="col">
+                        <div class="card menu-card h-100 rounded-3 shadow-sm bg-white">
+                            <img src="{{ product.image_url or '' }}" class="card-img-top menu-image" alt="{{ product.name }}" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80';">
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title fw-bold text-dark mb-1">{{ product.name }}</h6>
+                                <p class="card-text text-muted mb-2">{{ product.description }}</p>
+                                
+                                <div class="mt-auto pt-2 border-top">
+                                    <button type="button" class="btn btn-success w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#variantModal{{ product.id }}">
+                                        <i class="fas fa-plus me-1" aria-hidden="true"></i>Tambah Pesanan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="variantModal{{ product.id }}" tabindex="-1" aria-labelledby="variantModalTitle{{ product.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <div>
+                                            <h2 class="modal-title fs-5 fw-bold" id="variantModalTitle{{ product.id }}">{{ product.name }}</h2>
+                                            <p class="text-muted small mb-0">Pilih varian minuman</p>
+                                        </div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                    </div>
+                                    <div class="modal-body d-grid gap-2">
+                                        {% for variant in product.variants if variant.variant_name in ['Hot', 'Ice'] %}
+                                        <form action="{{ url_for('add_to_cart', variant_id=variant.id) }}" method="POST">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="btn btn-outline-success w-100 d-flex align-items-center gap-2">
+                                                <span class="fw-semibold">{{ variant.variant_name }}</span>
+                                                <span class="fw-bold ms-auto">Rp {{ "{:,.0f}".format(variant.price).replace(",", ".") }}</span>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <p class="text-muted small mb-0">Varian produk belum tersedia.</p>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Menu tidak ditemukan.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Current Order / Keranjang & Checkout (Lebar 4) -->
+            <div class="col-lg-4" id="currentOrderColumn">
+                            <aside class="cart-sidebar">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <h5 class="fw-bold text-success mb-0 fs-6"><i class="fas fa-shopping-cart me-2"></i> Current Order</h5>
+                    {% if cart %}
+                    <form action="{{ url_for('clear_cart') }}" method="POST" class="ms-auto" onsubmit="return confirm('Yakin ingin mengosongkan keranjang?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Hapus semua item di keranjang">
+                            <i class="fas fa-trash-alt me-1" aria-hidden="true"></i>Kosongkan
+                        </button>
+                    </form>
+                    {% endif %}
+                    <button id="orderClose" type="button" class="btn btn-sm btn-outline-secondary {% if not cart %}ms-auto{% endif %}" aria-label="Tutup Current Order" title="Tutup Current Order">
+                        <i class="fas fa-xmark" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                {% if cart %}
+                <!-- Daftar Item di Keranjang -->
+                <div class="order-items mb-3">
+                        <div class="list-group list-group-flush">
+                            {% for key, item in cart.items() %}
+                            <div class="list-group-item px-0 py-2 border-bottom">
+                                <div class="d-flex align-items-start gap-3">
+                                    {% if item.image_url %}
+                                    <img src="{{ item.image_url }}" class="order-item-image" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+                                    <span class="order-item-image order-item-fallback text-success" aria-hidden="true" hidden><i class="fas fa-mug-hot"></i></span>
+                                    {% else %}
+                                    <span class="order-item-image order-item-fallback text-success" aria-hidden="true"><i class="fas fa-mug-hot"></i></span>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0 fw-bold text-dark fs-6">{{ item.product_name }}</h6>
+                                        <small class="text-success fw-semibold">Varian: {{ item.variant_name }}</small>
+                                    </div>
+                                    <form action="{{ url_for('update_cart', cart_key=key) }}" method="POST">
+                                        <button type="submit" name="action" value="delete" class="btn btn-link text-danger p-1 fs-6 ms-auto" aria-label="Hapus {{ item.product_name }}"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <div class="quantity-stepper" aria-label="Jumlah pesanan">
+                                        <form action="{{ url_for('update_cart', cart_key=key) }}" method="POST" class="d-inline">
+                                            <button type="submit" name="action" value="decrease" class="stepper-button btn btn-outline-secondary" aria-label="Kurangi jumlah {{ item.product_name }}">−</button>
+                                        </form>
+                                        <span class="quantity-value fw-bold small">{{ item.quantity }}</span>
+                                        <form action="{{ url_for('update_cart', cart_key=key) }}" method="POST" class="d-inline">
+                                            <button type="submit" name="action" value="increase" class="stepper-button btn btn-outline-secondary" aria-label="Tambah jumlah {{ item.product_name }}">+</button>
+                                        </form>
+                                    </div>
+                                    <div class="text-end ms-auto">
+                                        <small class="d-block text-secondary">Rp {{ "{:,.0f}".format(item.price).replace(",", ".") }} × {{ item.quantity }}</small>
+                                        <span class="fw-bold text-dark small">Rp {{ "{:,.0f}".format(item.price * item.quantity).replace(",", ".") }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                </div>
+                {% else %}
+                <div class="empty-order">
+                    <i class="fas fa-basket-shopping" aria-hidden="true"></i>
+                    <span>Belum ada item dipilih</span>
+                </div>
+                {% endif %}
+
+                <!-- Nama Pemesan, Total, Pembayaran, dan Checkout -->
+                <div class="order-checkout border-top bg-white">
+                    <form action="{{ url_for('checkout') }}" method="POST">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-secondary mb-1">Nama Pemesan</label>
+                            <input type="text" class="form-control border-success" name="customer_name" required placeholder="Contoh: Budi Santoso">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Nomor Meja <span class="fw-normal">(opsional)</span></label>
+                            <input type="text" class="form-control border-success" name="table_number" placeholder="Contoh: 04">
+                        </div>
+                        <fieldset class="mb-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Metode Pembayaran</label>
+                            <div class="payment-options">
+                                <input type="radio" class="btn-check" name="payment_method" id="payment-dana" value="Transfer DANA" autocomplete="off" checked required>
+                                <label class="btn btn-outline-secondary" for="payment-dana"><i class="fas fa-wallet me-1"></i> DANA</label>
+                                <input type="radio" class="btn-check" name="payment_method" id="payment-cash" value="Tunai ke Kasir" autocomplete="off">
+                                <label class="btn btn-outline-secondary" for="payment-cash"><i class="fas fa-money-bill-wave me-1"></i> Tunai</label>
+                            </div>
+                        </fieldset>
+
+                        <div class="order-total d-flex align-items-center gap-2 mb-3 bg-light p-2 rounded">
+                            <span class="fw-bold text-secondary">Total Pembayaran</span>
+                            <span class="fw-bold text-success fs-2 ms-auto">Rp {{ "{:,.0f}".format(subtotal).replace(",", ".") }}</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm btn-checkout">
+                            <i class="fas fa-check-circle me-1"></i> Proceed to Payment
+                        </button>
+                    </form>
+                </div>
+
+                            </aside>
+                        </div>
+
+        </div>
+    </div>
+
+    <script>
+        const posLayout = document.getElementById('posLayout');
+        const orderToggle = document.getElementById('orderToggle');
+        const orderClose = document.getElementById('orderClose');
+        const currentOrderColumn = document.getElementById('currentOrderColumn');
+
+        function setOrderOpen(isOpen) {
+            posLayout.classList.toggle('order-collapsed', !isOpen);
+            orderToggle.setAttribute('aria-expanded', String(isOpen));
+            currentOrderColumn.inert = !isOpen;
+        }
+
+        orderToggle.addEventListener('click', () => {
+            setOrderOpen(posLayout.classList.contains('order-collapsed'));
+        });
+        orderClose.addEventListener('click', () => setOrderOpen(false));
+
+        if (window.matchMedia('(max-width: 991.98px)').matches) {
+            setOrderOpen(false);
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
