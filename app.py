@@ -34,9 +34,10 @@ app.config.update(
 )
 
 # Menggunakan DATABASE_URL dari environment jika ada, jika tidak gunakan PostgreSQL lokal
+db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'streetnbrew.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL', 
-    'postgresql+psycopg2://postgres:admin123@localhost:5432/coffe_shop_db'
+    f'sqlite:///{db_path}'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
