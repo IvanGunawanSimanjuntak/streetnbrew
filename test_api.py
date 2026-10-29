@@ -29,7 +29,7 @@ def test_dana_qr_endpoint(client):
     response = client.get("/payment/dana-qr.png")
     assert response.status_code == 200, f"Expected 200, got {response.status_code}"
     assert response.headers.get("content-type", "").startswith("image/png"), "Bukan format gambar PNG."
-    assert response.content.startswith(b"\x89PNG"), "Header binary bukan file PNG valid."
+    assert response.data.startswith(b"\x89PNG"), "Header binary bukan file PNG valid."
 
 def test_invalid_quantity_handling(client):
     """Negative Testing: Mengirim quantity non-numerik harus ditolak."""
