@@ -190,9 +190,14 @@
                             <i class="fas fa-filter me-1" aria-hidden="true"></i>Terapkan
                         </button>
                     </form>
-                    <a href="{{ url_for('kasir_laporan_pdf', periode=active_period, tanggal_mulai=tanggal_mulai, tanggal_akhir=tanggal_akhir) }}" class="btn btn-danger">
-                        <i class="fas fa-file-pdf me-2" aria-hidden="true"></i>Ekspor PDF
-                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ url_for('kasir_laporan_excel', periode=active_period, tanggal_mulai=tanggal_mulai, tanggal_akhir=tanggal_akhir) }}" class="btn btn-success">
+                            <i class="fas fa-file-excel me-2" aria-hidden="true"></i>Ekspor Excel
+                        </a>
+                        <a href="{{ url_for('kasir_laporan_pdf', periode=active_period, tanggal_mulai=tanggal_mulai, tanggal_akhir=tanggal_akhir) }}" class="btn btn-danger">
+                            <i class="fas fa-file-pdf me-2" aria-hidden="true"></i>Ekspor PDF
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>

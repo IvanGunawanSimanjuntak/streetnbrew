@@ -12,6 +12,10 @@ from urllib.parse import urlsplit
 from flask import Flask, abort, render_template, request, redirect, send_file, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from collections import defaultdict
+
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4, landscape
@@ -28,12 +32,6 @@ app.config.update(
     SESSION_COOKIE_SAMESITE='Lax',
     SESSION_COOKIE_SECURE=os.environ.get('SESSION_COOKIE_SECURE', '').lower() == 'true',
 )
-
-import os
-
-# Menggunakan environment variable DATABASE_URL jika ada (untuk GitHub Actions), 
-# jika tidak ada, gunakan PostgreSQL lokal.
-import os
 
 # Menggunakan DATABASE_URL dari environment jika ada, jika tidak gunakan PostgreSQL lokal
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
@@ -165,7 +163,7 @@ class ProductVariant(db.Model):
     __tablename__ = 'product_variants'
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    variant_name = db.Column(db.String(50), nullable=False) # Contoh: Hot, Ice, Regular, Large
+    variant_name = db.Column(db.String(50), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
 
 class Order(db.Model):
@@ -173,9 +171,9 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(100), nullable=False)
     table_number = db.Column(db.String(20), nullable=False)
-    payment_method = db.Column(db.String(50), nullable=False) # Transfer DANA / Transfer BCA / Tunai
+    payment_method = db.Column(db.String(50), nullable=False)
     total_price = db.Column(db.Numeric(10, 2), nullable=False)
-    status = db.Column(db.String(20), default='Menunggu Pembayaran') # Menunggu Pembayaran / Selesai
+    status = db.Column(db.String(20), default='Menunggu Pembayaran')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete-orphan")
 
@@ -216,18 +214,15 @@ def add_to_cart(variant_id):
     variant = ProductVariant.query.get_or_404(variant_id)
     product = variant.product
     
-    # Validasi kuantitas agar aman dari input non-numerik (mencegah error 500)
     raw_quantity = request.form.get('quantity', 1)
     try:
         quantity = int(raw_quantity)
         if quantity <= 0:
             abort(400)
     except (ValueError, TypeError):
-        abort(400)  # Menolak dengan status 400 Bad Request jika input bukan angka
+        abort(400)
     
-    # Gunakan key unik berdasarkan variant_id agar produk dan varian tidak tercampur.
     cart_key = str(variant_id)
-    
     cart = session.get('cart', {})
     
     if cart_key in cart:
@@ -323,7 +318,6 @@ def checkout():
 @app.route('/order/success/<int:order_id>')
 def order_success(order_id):
     order = Order.query.get_or_404(order_id)
-    # Format pesan WhatsApp otomatis untuk kasir
     wa_number = "6281262099033"
     items_text = "".join([f"\n- {item.product_name} ({item.variant_name}) x{item.quantity}" for item in order.items])
     wa_message = f"Halo Kak, saya {order.customer_name} telah melakukan pesanan via E-Menu dengan metode pembayaran *{order.payment_method}*.\n\nDetail Pesanan:{items_text}\n\nTotal: Rp {int(order.total_price):,}".replace(",", ".")
@@ -458,6 +452,80 @@ def kasir_laporan_pdf():
         mimetype='application/pdf',
         as_attachment=True,
         download_name='laporan-keuangan-street-n-brew.pdf',
+    )
+
+
+@app.route('/kasir/laporan/excel')
+@login_required
+def kasir_laporan_excel():
+    report = build_report_data()
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Laporan Keuangan"
+    
+    header_fill = PatternFill(start_color="12372C", end_color="12372C", fill_type="solid")
+    header_font = Font(name="Helvetica", size=10, bold=True, color="FFFFFF")
+    title_font = Font(name="Helvetica", size=14, bold=True, color="173F32")
+    normal_font = Font(name="Helvetica", size=10)
+    
+    border_thin = Border(
+        left=Side(style='thin', color='D8E2DB'),
+        right=Side(style='thin', color='D8E2DB'),
+        top=Side(style='thin', color='D8E2DB'),
+        bottom=Side(style='thin', color='D8E2DB')
+    )
+
+    ws.append(["Laporan Keuangan - Street N Brew"])
+    ws.cell(row=1, column=1).font = title_font
+    ws.append([f"Periode: {report['period_label']}"])
+    ws.append([
+        f"Pendapatan Selesai: Rp {int(report['total_pendapatan']):,}".replace(',', '.'),
+        f"Pesanan Selesai: {report['pesanan_selesai_count']}",
+        f"Total Transaksi: {report['total_pesanan']}"
+    ])
+    ws.append([])
+    
+    headers = ['ID', 'Waktu', 'Pelanggan', 'Metode Pembayaran', 'Total Harga', 'Status']
+    ws.append(headers)
+    
+    for col_num in range(1, len(headers) + 1):
+        cell = ws.cell(row=5, column=col_num)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    for order in report['all_orders']:
+        row_data = [
+            order.id,
+            order.created_at.strftime('%d/%m/%Y %H:%M'),
+            order.customer_name,
+            order.payment_method,
+            float(order.total_price),
+            order.status
+        ]
+        ws.append(row_data)
+
+    for row in range(6, ws.max_row + 1):
+        for col in range(1, 7):
+            cell = ws.cell(row=row, column=col)
+            cell.font = normal_font
+            cell.border = border_thin
+            if col == 5:
+                cell.number_format = '"Rp "#,##0'
+                cell.alignment = Alignment(horizontal="right")
+            elif col in (1, 2, 6):
+                cell.alignment = Alignment(horizontal="center")
+
+    excel_buffer = BytesIO()
+    wb.save(excel_buffer)
+    excel_buffer.seek(0)
+    
+    return send_file(
+        excel_buffer,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='laporan-keuangan-street-n-brew.xlsx'
     )
 
 
